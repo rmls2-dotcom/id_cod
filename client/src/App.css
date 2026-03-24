@@ -1,0 +1,395 @@
+.page {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 2rem 1rem 2.5rem;
+}
+
+.hero {
+  margin-bottom: 1.5rem;
+  border-radius: 22px;
+  padding: 1.4rem 1.3rem;
+  background: linear-gradient(130deg, var(--hero-start), var(--hero-end));
+  color: #fff8f3;
+  box-shadow: var(--shadow);
+  animation: rise-in 500ms ease-out;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.12rem;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+.hero h1 {
+  margin: 0.45rem 0;
+  color: #ffffff;
+  font-size: clamp(1.7rem, 3.5vw, 2.6rem);
+  line-height: 1.1;
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 64ch;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.panel {
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  border-radius: 18px;
+  padding: 1rem;
+  box-shadow: var(--panel-shadow);
+  animation: rise-in 500ms ease-out;
+}
+
+.panel-full {
+  grid-column: 1 / -1;
+}
+
+.panel h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.panel-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.muted {
+  margin-top: 0.9rem;
+  color: var(--text-muted);
+}
+
+.question-list {
+  margin: 0.8rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.question-item {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.question-card {
+  border: 1px solid var(--panel-border);
+  background: #fffdf8;
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.question-card:hover {
+  border-color: var(--accent-border);
+}
+
+.question-card.is-active {
+  background: var(--accent-soft);
+  border-color: var(--accent-border);
+}
+
+.question-text {
+  display: block;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.question-meta {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.form {
+  margin-top: 0.85rem;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.field span {
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+input,
+textarea {
+  font: inherit;
+  border-radius: 10px;
+  border: 1px solid var(--panel-border);
+  padding: 0.65rem 0.7rem;
+  background: #fff;
+}
+
+input:focus,
+textarea:focus {
+  outline: 2px solid var(--accent-border);
+  border-color: var(--accent-border);
+}
+
+.field-group {
+  border: 1px dashed var(--panel-border);
+  border-radius: 12px;
+  padding: 0.8rem;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.field-group-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.muted-inline {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.two-cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.mode-group {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.mode-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 0.55rem 0.65rem;
+  background: #fff;
+}
+
+.selection-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.selection-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 0.5rem 0.6rem;
+  background: #fff;
+}
+
+.exam-list-wrap {
+  margin-top: 1rem;
+  border-top: 1px dashed var(--panel-border);
+  padding-top: 1rem;
+}
+
+.exam-list-wrap h3 {
+  margin: 0 0 0.6rem;
+  color: var(--text-strong);
+  font-size: 1rem;
+}
+
+.exam-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.exam-item {
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 0.55rem 0.65rem;
+  background: #fff;
+}
+
+.exam-title {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.exam-meta {
+  margin: 0.2rem 0 0;
+  font-size: 0.92rem;
+}
+
+.exam-actions {
+  margin-top: 0.6rem;
+  display: flex;
+  gap: 0.45rem;
+}
+
+.generate-box {
+  margin-top: 0.7rem;
+  padding-top: 0.7rem;
+  border-top: 1px dashed var(--panel-border);
+  display: flex;
+  gap: 0.65rem;
+  align-items: end;
+  flex-wrap: wrap;
+}
+
+.compact-field {
+  width: 170px;
+}
+
+.generation-results {
+  margin-top: 0.65rem;
+  background: #fffaf4;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 0.6rem;
+}
+
+.generation-results a {
+  color: #9b431f;
+}
+
+.generated-links {
+  margin: 0.45rem 0 0;
+  padding-left: 1rem;
+}
+
+.alternative-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.6rem;
+  align-items: end;
+}
+
+.alt-desc-field {
+  min-width: 0;
+}
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding-bottom: 0.6rem;
+}
+
+.checkbox span {
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.btn {
+  border-radius: 10px;
+  border: 1px solid transparent;
+  padding: 0.55rem 0.8rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.05);
+}
+
+.btn-subtle {
+  background: #ffffff;
+  border-color: var(--panel-border);
+  color: var(--text-strong);
+}
+
+.btn-subtle:hover {
+  border-color: var(--accent-border);
+}
+
+.btn-danger {
+  align-self: center;
+  background: #fff;
+  border-color: #f3c0c0;
+  color: #ad3a3a;
+}
+
+.status {
+  margin: 0;
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+  font-weight: 600;
+}
+
+.status-error {
+  background: #ffe9e9;
+  color: #9f2e2e;
+}
+
+.status-success {
+  background: #e6f9ec;
+  color: #1f7a43;
+}
+
+.actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .alternative-row {
+    grid-template-columns: 1fr;
+  }
+
+  .checkbox {
+    padding-bottom: 0;
+  }
+
+  .two-cols {
+    grid-template-columns: 1fr;
+  }
+}
