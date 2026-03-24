@@ -69,6 +69,9 @@ id_cod/
   - N PDF files with shuffled question and alternative order per test
   - one answer-key CSV with one line per test number (no header row)
   - answer mode specific key format (`LETTERS` as letters, `POWERS_OF_TWO` as sums)
+  - PDF header with exam information (title, subject, professor, semester, date, and metadata)
+  - footer on each PDF page with the generated exam number
+  - student identification area (Name and CPF) at the end of each PDF
 
 ## Run locally
 

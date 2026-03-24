@@ -64,10 +64,16 @@ function writeFooterOnAllPages(doc: InstanceType<typeof PDFDocument>, testNumber
     doc
       .fontSize(9)
       .fillColor("#666666")
-      .text(`Individual test number: ${testNumber}`, 50, doc.page.height - 40, {
+      .text(`Exam number: ${testNumber}`, 50, doc.page.height - 40, {
         width: doc.page.width - 100,
         align: "center",
       });
+  }
+}
+
+function ensureSpace(doc: InstanceType<typeof PDFDocument>, requiredHeight: number): void {
+  if (doc.y + requiredHeight > doc.page.height - 60) {
+    doc.addPage();
   }
 }
 
@@ -83,33 +89,35 @@ function renderSingleTestPdf(
 
     doc.pipe(stream);
 
-  doc.fontSize(18).fillColor("#111111").text(exam.title, { align: "center" });
-  doc.moveDown(0.5);
+    doc.fontSize(18).fillColor("#111111").text(exam.title, { align: "center" });
+    doc.moveDown(0.5);
 
-  doc.fontSize(11).fillColor("#222222");
-  if (exam.subject) {
-    doc.text(`Subject: ${exam.subject}`);
-  }
-  if (exam.professor) {
-    doc.text(`Professor: ${exam.professor}`);
-  }
-  if (exam.semester) {
-    doc.text(`Semester: ${exam.semester}`);
-  }
-  if (exam.metadata) {
-    doc.text(`Metadata: ${exam.metadata}`);
-  }
+    const dateText = new Date().toLocaleDateString("pt-BR");
 
-  doc.moveDown(0.8);
-  doc.text("Student Name: ________________________________________________");
-  doc.text("CPF: _________________________________________________________");
-  doc.moveDown(1);
+    doc.fontSize(11).fillColor("#222222");
+    if (exam.subject) {
+      doc.text(`Subject: ${exam.subject}`);
+    }
+    if (exam.professor) {
+      doc.text(`Professor: ${exam.professor}`);
+    }
+    if (exam.semester) {
+      doc.text(`Semester: ${exam.semester}`);
+    }
+    doc.text(`Date: ${dateText}`);
+    if (exam.metadata) {
+      doc.text(`Additional info: ${exam.metadata}`);
+    }
+
+    doc.moveDown(1);
 
   questions.forEach((question, index) => {
-    doc
-      .fontSize(12)
-      .fillColor("#111111")
-      .text(`${index + 1}. ${question.description}`, { width: 500 });
+      ensureSpace(doc, 80);
+
+      doc
+        .fontSize(12)
+        .fillColor("#111111")
+        .text(`${index + 1}. ${question.description}`, { width: 500 });
 
     question.alternatives.forEach((alternative, altIndex) => {
       const label = labelForIndex(altIndex, exam.answerMode);
@@ -119,15 +127,23 @@ function renderSingleTestPdf(
         .text(`    (${label}) ${alternative.description}`, { width: 500 });
     });
 
-    doc.moveDown(0.3);
-    if (exam.answerMode === "LETTERS") {
-      doc.fontSize(11).text("    Marked letters: ____________________");
-    } else {
-      doc.fontSize(11).text("    Sum of marked alternatives: ____________________");
-    }
+      doc.moveDown(0.3);
+      if (exam.answerMode === "LETTERS") {
+        doc.fontSize(11).text("    Marked letters: ____________________");
+      } else {
+        doc.fontSize(11).text("    Sum of marked alternatives: ____________________");
+      }
 
-    doc.moveDown(0.9);
-  });
+      doc.moveDown(0.9);
+    });
+
+    ensureSpace(doc, 90);
+    doc.moveDown(0.6);
+    doc.fontSize(12).fillColor("#111111").text("Student Identification");
+    doc.moveDown(0.4);
+    doc.fontSize(11).fillColor("#222222").text("Name: ___________________________________________________________");
+    doc.moveDown(0.2);
+    doc.text("CPF: ____________________________________________________________");
 
     writeFooterOnAllPages(doc, testNumber);
 
