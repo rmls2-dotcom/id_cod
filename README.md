@@ -1,15 +1,6 @@
 # Question Bank Manager (React + Node + TypeScript)
 
-This project implements the **question management** flow from `docs/acceptance/exam-system.feature`, especially the rule:
-
-- `Completed exam questions can be managed with alternatives and correctness flags`
-
-And now also includes the next slice:
-
-- `Exams are assembled from registered questions with answer mode letters or powers of 2`
-- `Individualized PDFs and answer-key CSV are generated for selected exam and quantity`
-- `Tests can be graded from answer-key CSV and student-response CSV with strict or proportional rigor`
-- `CSV contracts for integrations are explicit and validated`
+This project implements the **question management** flow
 
 ## Tech Stack
 
@@ -17,30 +8,6 @@ And now also includes the next slice:
 - Server: Node.js + Express + TypeScript
 - Validation: Zod
 
-## Suggested Project Structure
-
-```text
-id_cod/
-  client/
-    src/
-      api.ts
-      App.tsx
-      App.css
-      index.css
-      types.ts
-  server/
-    src/
-      index.ts
-      routes.ts
-      store.ts
-      types.ts
-      validation.ts
-  docs/
-    acceptance/
-      exam-system.feature
-  package.json
-  README.md
-```
 
 ## What is implemented now
 
@@ -125,54 +92,6 @@ Build all:
 npm run build
 ```
 
-## API endpoints
-
-Base URL: `http://localhost:3000/api`
-
-- `GET /health`
-- `GET /questions`
-- `GET /questions/:id`
-- `POST /questions`
-- `PUT /questions/:id`
-- `DELETE /questions/:id`
-- `GET /exams`
-- `GET /exams/:id`
-- `POST /exams`
-- `PUT /exams/:id`
-- `DELETE /exams/:id`
-- `POST /exams/:id/generate-tests`
-- `POST /exams/:id/grade`
-- `POST /exams/:id/grade-report`
-
-### Payload for create/update
-
-```json
-{
-  "description": "Question statement",
-  "alternatives": [
-    { "description": "Alternative A", "isCorrect": true },
-    { "description": "Alternative B", "isCorrect": false }
-  ]
-}
-```
-
-### Payload for test generation
-
-```json
-{
-  "count": 30
-}
-```
-
-### Payload for grading
-
-```json
-{
-  "rigorMode": "STRICT",
-  "answerKeyCsv": "1,AD,9\n2,BC,5",
-  "studentResponsesCsv": "studentName,cpf,testNumber,q1Answer,q2Answer\nCarla Lima,12345678901,1,AC,9"
-}
-```
 
 ### Student responses CSV required format
 
