@@ -47,3 +47,39 @@ export type GeneratedTestsResult = {
     answerKeyCsv: string;
   };
 };
+
+export type GradingRigorMode = "STRICT" | "PROPORTIONAL";
+
+export type GradingRow = {
+  studentName: string;
+  cpf: string;
+  testNumber: number;
+  perQuestionScores: number[];
+  totalScore: number;
+  percentage: number;
+  status: "VALID" | "INVALID";
+  reason?: string;
+};
+
+export type GradingSummary = {
+  classAverage: number;
+  highestGrade: number;
+  lowestGrade: number;
+  invalidRowCount: number;
+  totalRows: number;
+};
+
+export type GradeExamResult = {
+  examId: string;
+  rigorMode: GradingRigorMode;
+  executedAt: string;
+  summary: GradingSummary;
+  rows: GradingRow[];
+};
+
+export type GradeReportResult = {
+  reportUrl: string;
+  summary: GradingSummary;
+  columns: string[];
+  rowCount: number;
+};

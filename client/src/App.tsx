@@ -5,13 +5,23 @@ import {
   createQuestion,
   deleteExam,
   deleteQuestion,
+  exportGradeReport,
+  gradeExam,
   generateExamTests,
   listExams,
   listQuestions,
   updateExam,
   updateQuestion,
 } from "./api";
-import type { Exam, ExamAnswerMode, GeneratedTestsResult, Question } from "./types";
+import type {
+  Exam,
+  ExamAnswerMode,
+  GeneratedTestsResult,
+  GradeExamResult,
+  GradeReportResult,
+  GradingRigorMode,
+  Question,
+} from "./types";
 import "./App.css";
 
 type AlternativeDraft = {
@@ -56,6 +66,13 @@ function App() {
     Record<string, GeneratedTestsResult>
   >({});
   const [isGeneratingByExamId, setIsGeneratingByExamId] = useState<Record<string, boolean>>({});
+  const [answerKeyCsvByExamId, setAnswerKeyCsvByExamId] = useState<Record<string, string>>({});
+  const [studentResponsesCsvByExamId, setStudentResponsesCsvByExamId] = useState<Record<string, string>>({});
+  const [gradingModeByExamId, setGradingModeByExamId] = useState<Record<string, GradingRigorMode>>({});
+  const [gradingResultByExamId, setGradingResultByExamId] = useState<Record<string, GradeExamResult>>({});
+  const [gradeReportByExamId, setGradeReportByExamId] = useState<Record<string, GradeReportResult>>({});
+  const [isGradingByExamId, setIsGradingByExamId] = useState<Record<string, boolean>>({});
+  const [isExportingByExamId, setIsExportingByExamId] = useState<Record<string, boolean>>({});
 
   const selectedQuestion = useMemo(
     () => questions.find((question) => question.id === selectedQuestionId) ?? null,
@@ -319,6 +336,98 @@ function App() {
       setExamError(apiError instanceof Error ? apiError.message : "Could not generate tests");
     } finally {
       setIsGeneratingByExamId((current) => ({ ...current, [examId]: false }));
+    }
+  }
+
+  function handleAnswerKeyCsvChange(examId: string, value: string): void {
+    setAnswerKeyCsvByExamId((current) => ({ ...current, [examId]: value }));
+  }
+
+  function handleStudentResponsesCsvChange(examId: string, value: string): void {
+    setStudentResponsesCsvByExamId((current) => ({ ...current, [examId]: value }));
+  }
+
+  function handleGradingModeChange(examId: string, mode: GradingRigorMode): void {
+    setGradingModeByExamId((current) => ({ ...current, [examId]: mode }));
+  }
+
+  async function readFileAsText(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result ?? ""));
+      reader.onerror = () => reject(new Error("Could not read file"));
+      reader.readAsText(file);
+    });
+  }
+
+  async function handleCsvUpload(params: {
+    examId: string;
+    target: "answer-key" | "student-responses";
+    file: File | null;
+  }): Promise<void> {
+    if (!params.file) {
+      return;
+    }
+
+    try {
+      const content = await readFileAsText(params.file);
+      if (params.target === "answer-key") {
+        handleAnswerKeyCsvChange(params.examId, content);
+      } else {
+        handleStudentResponsesCsvChange(params.examId, content);
+      }
+      setExamFeedback("CSV loaded from file.");
+      setExamError(null);
+    } catch (apiError) {
+      setExamError(apiError instanceof Error ? apiError.message : "Could not read CSV file");
+    }
+  }
+
+  async function handleRunGrading(examId: string): Promise<void> {
+    const answerKeyCsv = (answerKeyCsvByExamId[examId] ?? "").trim();
+    const studentResponsesCsv = (studentResponsesCsvByExamId[examId] ?? "").trim();
+    const rigorMode = gradingModeByExamId[examId] ?? "STRICT";
+
+    setExamError(null);
+    setExamFeedback(null);
+    setIsGradingByExamId((current) => ({ ...current, [examId]: true }));
+
+    try {
+      const result = await gradeExam({
+        examId,
+        rigorMode,
+        answerKeyCsv,
+        studentResponsesCsv,
+      });
+
+      setGradingResultByExamId((current) => ({
+        ...current,
+        [examId]: result,
+      }));
+      setExamFeedback(`Grading executed in ${result.rigorMode} mode.`);
+    } catch (apiError) {
+      setExamError(apiError instanceof Error ? apiError.message : "Could not grade exam");
+    } finally {
+      setIsGradingByExamId((current) => ({ ...current, [examId]: false }));
+    }
+  }
+
+  async function handleExportGradeReport(examId: string): Promise<void> {
+    setExamError(null);
+    setExamFeedback(null);
+    setIsExportingByExamId((current) => ({ ...current, [examId]: true }));
+
+    try {
+      const result = await exportGradeReport(examId);
+      setGradeReportByExamId((current) => ({
+        ...current,
+        [examId]: result,
+      }));
+      setExamFeedback("Class report exported successfully.");
+    } catch (apiError) {
+      setExamError(apiError instanceof Error ? apiError.message : "Could not export class report");
+    } finally {
+      setIsExportingByExamId((current) => ({ ...current, [examId]: false }));
     }
   }
 
@@ -636,6 +745,108 @@ function App() {
                       </details>
                     </div>
                   ) : null}
+
+                  <div className="grading-box">
+                    <p className="exam-meta grading-title">Grading and class report</p>
+
+                    <div className="grading-grid">
+                      <label className="field">
+                        <span>Answer-key CSV</span>
+                        <textarea
+                          rows={5}
+                          placeholder="Paste answer-key CSV content"
+                          value={answerKeyCsvByExamId[exam.id] ?? ""}
+                          onChange={(event) => handleAnswerKeyCsvChange(exam.id, event.target.value)}
+                        />
+                        <input
+                          type="file"
+                          accept=".csv,text/csv"
+                          onChange={(event) =>
+                            void handleCsvUpload({
+                              examId: exam.id,
+                              target: "answer-key",
+                              file: event.target.files?.[0] ?? null,
+                            })
+                          }
+                        />
+                      </label>
+
+                      <label className="field">
+                        <span>Student responses CSV</span>
+                        <textarea
+                          rows={5}
+                          placeholder="Paste student responses CSV content"
+                          value={studentResponsesCsvByExamId[exam.id] ?? ""}
+                          onChange={(event) =>
+                            handleStudentResponsesCsvChange(exam.id, event.target.value)
+                          }
+                        />
+                        <input
+                          type="file"
+                          accept=".csv,text/csv"
+                          onChange={(event) =>
+                            void handleCsvUpload({
+                              examId: exam.id,
+                              target: "student-responses",
+                              file: event.target.files?.[0] ?? null,
+                            })
+                          }
+                        />
+                      </label>
+                    </div>
+
+                    <div className="grading-actions">
+                      <label className="field compact-field">
+                        <span>Rigor mode</span>
+                        <select
+                          value={gradingModeByExamId[exam.id] ?? "STRICT"}
+                          onChange={(event) =>
+                            handleGradingModeChange(exam.id, event.target.value as GradingRigorMode)
+                          }
+                        >
+                          <option value="STRICT">STRICT</option>
+                          <option value="PROPORTIONAL">PROPORTIONAL</option>
+                        </select>
+                      </label>
+
+                      <button
+                        className="btn btn-primary"
+                        type="button"
+                        disabled={Boolean(isGradingByExamId[exam.id])}
+                        onClick={() => void handleRunGrading(exam.id)}
+                      >
+                        {isGradingByExamId[exam.id] ? "Grading..." : "Run grading"}
+                      </button>
+
+                      <button
+                        className="btn btn-subtle"
+                        type="button"
+                        disabled={Boolean(isExportingByExamId[exam.id])}
+                        onClick={() => void handleExportGradeReport(exam.id)}
+                      >
+                        {isExportingByExamId[exam.id] ? "Exporting..." : "Export class report"}
+                      </button>
+                    </div>
+
+                    {gradingResultByExamId[exam.id] ? (
+                      <div className="grading-results">
+                        <p className="exam-meta">
+                          Summary: avg {gradingResultByExamId[exam.id].summary.classAverage}, high {gradingResultByExamId[exam.id].summary.highestGrade}, low {gradingResultByExamId[exam.id].summary.lowestGrade}, invalid rows {gradingResultByExamId[exam.id].summary.invalidRowCount}
+                        </p>
+                        <p className="exam-meta">
+                          Rows graded: {gradingResultByExamId[exam.id].summary.totalRows}
+                        </p>
+                      </div>
+                    ) : null}
+
+                    {gradeReportByExamId[exam.id] ? (
+                      <p className="exam-meta">
+                        <a href={`http://localhost:3001${gradeReportByExamId[exam.id].reportUrl}`} target="_blank" rel="noreferrer">
+                          Open class report CSV
+                        </a>
+                      </p>
+                    ) : null}
+                  </div>
                 </li>
               ))}
             </ul>

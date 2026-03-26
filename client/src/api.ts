@@ -1,4 +1,13 @@
-import type { Exam, ExamInput, GeneratedTestsResult, Question, QuestionInput } from "./types";
+import type {
+  Exam,
+  ExamInput,
+  GeneratedTestsResult,
+  GradeExamResult,
+  GradeReportResult,
+  GradingRigorMode,
+  Question,
+  QuestionInput,
+} from "./types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3001/api";
 
@@ -101,4 +110,33 @@ export async function generateExamTests(examId: string, count: number): Promise<
   });
 
   return parseResponse<GeneratedTestsResult>(response);
+}
+
+export async function gradeExam(params: {
+  examId: string;
+  rigorMode: GradingRigorMode;
+  answerKeyCsv: string;
+  studentResponsesCsv: string;
+}): Promise<GradeExamResult> {
+  const response = await fetch(`${API_BASE_URL}/exams/${params.examId}/grade`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      rigorMode: params.rigorMode,
+      answerKeyCsv: params.answerKeyCsv,
+      studentResponsesCsv: params.studentResponsesCsv,
+    }),
+  });
+
+  return parseResponse<GradeExamResult>(response);
+}
+
+export async function exportGradeReport(examId: string): Promise<GradeReportResult> {
+  const response = await fetch(`${API_BASE_URL}/exams/${examId}/grade-report`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({}),
+  });
+
+  return parseResponse<GradeReportResult>(response);
 }

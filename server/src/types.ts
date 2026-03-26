@@ -53,3 +53,34 @@ export type GeneratedExamBatch = {
   pdfFiles: string[];
   answerKeyCsv: string;
 };
+
+export type GradingRigorMode = "STRICT" | "PROPORTIONAL";
+
+export type GradingStatus = "VALID" | "INVALID";
+
+export type GradingRow = {
+  studentName: string;
+  cpf: string;
+  testNumber: number;
+  perQuestionScores: number[];
+  totalScore: number;
+  percentage: number;
+  status: GradingStatus;
+  reason?: string;
+};
+
+export type GradingSummary = {
+  classAverage: number;
+  highestGrade: number;
+  lowestGrade: number;
+  invalidRowCount: number;
+  totalRows: number;
+};
+
+export type GradingExecution = {
+  examId: string;
+  rigorMode: GradingRigorMode;
+  executedAt: string;
+  rows: GradingRow[];
+  summary: GradingSummary;
+};

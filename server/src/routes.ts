@@ -1,6 +1,7 @@
 import { Router } from "express";
 import path from "node:path";
 import { generateIndividualTests } from "./generate-tests";
+import { exportGradeReportCsv, getLastGradingExecution, gradeExamCsv } from "./grading";
 import {
   allQuestionsExist,
   createExam,
@@ -16,7 +17,7 @@ import {
   updateExam,
   updateQuestion,
 } from "./store";
-import { examSchema, generateTestsSchema, questionSchema } from "./validation";
+import { examSchema, generateTestsSchema, gradeExamsSchema, questionSchema } from "./validation";
 
 export const router = Router();
 
@@ -192,5 +193,80 @@ router.post("/exams/:id/generate-tests", async (req, res) => {
       pdfs: result.pdfFiles.map((fileName) => `${baseUrl}/${fileName}`),
       answerKeyCsv: `${baseUrl}/${result.answerKeyCsv}`,
     },
+  });
+});
+
+router.post("/exams/:id/grade", (req, res) => {
+  const parsed = gradeExamsSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({
+      message: "Validation error",
+      issues: parsed.error.issues.map((issue) => issue.message),
+    });
+  }
+
+  const exam = getExamById(req.params.id);
+  if (!exam) {
+    return res.status(404).json({ message: "Exam not found" });
+  }
+
+  const questions = getQuestionsByIds(exam.questionIds);
+  if (questions.length !== exam.questionIds.length) {
+    return res.status(400).json({
+      message: "Validation error",
+      issues: ["Exam contains missing questions"],
+    });
+  }
+
+  try {
+    const execution = gradeExamCsv({
+      exam,
+      questions,
+      answerKeyCsv: parsed.data.answerKeyCsv,
+      studentResponsesCsv: parsed.data.studentResponsesCsv,
+      rigorMode: parsed.data.rigorMode,
+    });
+
+    return res.status(200).json({
+      examId: execution.examId,
+      rigorMode: execution.rigorMode,
+      executedAt: execution.executedAt,
+      summary: execution.summary,
+      rows: execution.rows,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      message: error instanceof Error ? error.message : "Could not grade exam",
+      issues: [error instanceof Error ? error.message : "Could not grade exam"],
+    });
+  }
+});
+
+router.post("/exams/:id/grade-report", (req, res) => {
+  const exam = getExamById(req.params.id);
+  if (!exam) {
+    return res.status(404).json({ message: "Exam not found" });
+  }
+
+  const execution = getLastGradingExecution(exam.id);
+  if (!execution) {
+    return res.status(400).json({
+      message: "No grading execution found for exam",
+      issues: ["Run grading before requesting class report export"],
+    });
+  }
+
+  const outputRootDir = path.resolve(process.cwd(), "generated");
+  const exportResult = exportGradeReportCsv({
+    exam,
+    execution,
+    outputRootDir,
+  });
+
+  return res.status(201).json({
+    reportUrl: exportResult.relativeUrl,
+    summary: execution.summary,
+    columns: ["studentName", "cpf", "testNumber", "totalScore", "percentage", "status"],
+    rowCount: execution.rows.length,
   });
 });

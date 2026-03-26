@@ -133,7 +133,8 @@
 }
 
 input,
-textarea {
+textarea,
+select {
   font: inherit;
   border-radius: 10px;
   border: 1px solid var(--panel-border);
@@ -142,7 +143,8 @@ textarea {
 }
 
 input:focus,
-textarea:focus {
+textarea:focus,
+select:focus {
   outline: 2px solid var(--accent-border);
   border-color: var(--accent-border);
 }
@@ -280,6 +282,40 @@ textarea:focus {
   padding-left: 1rem;
 }
 
+.grading-box {
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px dashed var(--panel-border);
+}
+
+.grading-title {
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.grading-grid {
+  margin-top: 0.4rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.grading-actions {
+  margin-top: 0.7rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: end;
+}
+
+.grading-results {
+  margin-top: 0.6rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  background: #fef9f2;
+}
+
 .alternative-row {
   display: grid;
   grid-template-columns: 1fr auto auto;
@@ -390,6 +426,10 @@ textarea:focus {
   }
 
   .two-cols {
+    grid-template-columns: 1fr;
+  }
+
+  .grading-grid {
     grid-template-columns: 1fr;
   }
 }

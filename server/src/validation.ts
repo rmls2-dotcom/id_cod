@@ -31,3 +31,11 @@ export const generateTestsSchema = z.object({
 });
 
 export type GenerateTestsSchemaInput = z.infer<typeof generateTestsSchema>;
+
+export const gradeExamsSchema = z.object({
+  rigorMode: z.enum(["STRICT", "PROPORTIONAL"]),
+  answerKeyCsv: z.string().min(1, "Answer key CSV is required"),
+  studentResponsesCsv: z.string().min(1, "Student responses CSV is required"),
+});
+
+export type GradeExamsSchemaInput = z.infer<typeof gradeExamsSchema>;

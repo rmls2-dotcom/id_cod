@@ -8,6 +8,8 @@ And now also includes the next slice:
 
 - `Exams are assembled from registered questions with answer mode letters or powers of 2`
 - `Individualized PDFs and answer-key CSV are generated for selected exam and quantity`
+- `Tests can be graded from answer-key CSV and student-response CSV with strict or proportional rigor`
+- `CSV contracts for integrations are explicit and validated`
 
 ## Tech Stack
 
@@ -72,6 +74,24 @@ id_cod/
   - PDF header with exam information (title, subject, professor, semester, date, and metadata)
   - footer on each PDF page with the generated exam number
   - student identification area (Name and CPF) at the end of each PDF
+- Grade exams from CSV answer key and student responses
+- Grading modes:
+  - `STRICT`: any wrong/missing selection yields 0 for the question
+  - `PROPORTIONAL`: score per question is proportional to correct selected/unselected alternatives
+- Class report export includes:
+  - one row per student response
+  - columns: `studentName`, `cpf`, `testNumber`, `totalScore`, `percentage`, `status`
+  - summary metrics: class average, highest grade, lowest grade, invalid row count
+- CSV contract validations implemented:
+  - missing required student-response columns (e.g. `testNumber`) aborts processing
+  - invalid CPF format marks row invalid
+  - unknown test number marks row invalid
+  - answer-key question count mismatch aborts processing
+- Frontend grading panel per exam supports:
+  - pasting CSV content directly
+  - uploading CSV files from disk
+  - choosing `STRICT` or `PROPORTIONAL` grading mode
+  - running grading and exporting class report CSV
 
 ## Run locally
 
@@ -121,6 +141,8 @@ Base URL: `http://localhost:3001/api`
 - `PUT /exams/:id`
 - `DELETE /exams/:id`
 - `POST /exams/:id/generate-tests`
+- `POST /exams/:id/grade`
+- `POST /exams/:id/grade-report`
 
 ### Payload for create/update
 
@@ -139,6 +161,16 @@ Base URL: `http://localhost:3001/api`
 ```json
 {
   "count": 30
+}
+```
+
+### Payload for grading
+
+```json
+{
+  "rigorMode": "STRICT",
+  "answerKeyCsv": "1,AD,9\n2,BC,5",
+  "studentResponsesCsv": "studentName,cpf,testNumber,q1Answer,q2Answer\nCarla Lima,12345678901,1,AC,9"
 }
 ```
 
