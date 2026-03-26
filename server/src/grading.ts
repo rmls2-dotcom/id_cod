@@ -16,6 +16,15 @@ type StudentCsvColumns = {
 const gradingExecutionsByExamId = new Map<string, GradingExecution>();
 
 function parseCsvLine(line: string): string[] {
+  // Accept common spreadsheet paste formats: TSV and semicolon-delimited CSV.
+  if (!line.includes(",") && line.includes("\t")) {
+    return line.split("\t").map((value) => value.trim());
+  }
+
+  if (!line.includes(",") && line.includes(";")) {
+    return line.split(";").map((value) => value.trim());
+  }
+
   const values: string[] = [];
   let current = "";
   let inQuotes = false;
@@ -35,7 +44,7 @@ function parseCsvLine(line: string): string[] {
       continue;
     }
 
-    if (char === "," && !inQuotes) {
+    if ((char === "," || char === ";") && !inQuotes) {
       values.push(current.trim());
       current = "";
       continue;
@@ -60,7 +69,16 @@ function parseCsv(input: string): ParsedCsv {
 }
 
 function normalizeHeader(header: string): string {
-  return header.trim().toLowerCase().replace(/\s+/g, "");
+  return header
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function findHeaderIndex(normalizedHeaders: string[], aliases: string[]): number {
+  return normalizedHeaders.findIndex((header) => aliases.includes(header));
 }
 
 function parseAnswerColumns(headers: string[], questionCount: number): number[] {
@@ -90,20 +108,44 @@ function parseAnswerColumns(headers: string[], questionCount: number): number[] 
 function parseStudentCsvColumns(headerRow: string[], questionCount: number): StudentCsvColumns {
   const normalizedHeaders = headerRow.map(normalizeHeader);
 
-  const studentNameIndex = normalizedHeaders.indexOf("studentname");
-  const cpfIndex = normalizedHeaders.indexOf("cpf");
-  const testNumberIndex = normalizedHeaders.indexOf("testnumber");
+  const studentNameIndex = findHeaderIndex(normalizedHeaders, [
+    "studentname",
+    "name",
+    "aluno",
+    "nome",
+    "nomedoaluno",
+  ]);
+  const cpfIndex = findHeaderIndex(normalizedHeaders, ["cpf"]);
+  const testNumberIndex = findHeaderIndex(normalizedHeaders, [
+    "testnumber",
+    "testid",
+    "examnumber",
+    "examid",
+    "numerodaprova",
+    "numeroprova",
+    "provanumero",
+    "provaid",
+    "prova",
+  ]);
 
-  if (testNumberIndex < 0) {
-    throw new Error("Missing required column: testNumber");
-  }
+  const expectedHeaderExample =
+    "studentName,cpf,testNumber," +
+    Array.from({ length: questionCount }, (_, index) => `q${index + 1}Answer`).join(",");
 
   if (studentNameIndex < 0) {
-    throw new Error("Missing required column: studentName");
+    throw new Error(
+      `Missing required column: studentName. Expected header format: ${expectedHeaderExample}`,
+    );
   }
 
   if (cpfIndex < 0) {
-    throw new Error("Missing required column: cpf");
+    throw new Error(`Missing required column: cpf. Expected header format: ${expectedHeaderExample}`);
+  }
+
+  if (testNumberIndex < 0) {
+    throw new Error(
+      `Missing required column: testNumber. Expected header format: ${expectedHeaderExample}`,
+    );
   }
 
   const answerIndexes = parseAnswerColumns(headerRow, questionCount);

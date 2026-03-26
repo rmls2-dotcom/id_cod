@@ -174,6 +174,17 @@ Base URL: `http://localhost:3000/api`
 }
 ```
 
+### Student responses CSV required format
+
+When creating the student responses CSV, use this structure (header required):
+
+```csv
+studentName,cpf,testNumber,q1Answer,q2Answer,q3Answer
+Alice,12345678901,1,ABC,C,AB
+Bruno,12345678902,2,A,AC,BCD
+Carla,12345678903,3,ACD,AC,B
+```
+
 ### Generated files
 
 - Files are written to `generated/<batchId>/`.
