@@ -127,7 +127,7 @@ npm run build
 
 ## API endpoints
 
-Base URL: `http://localhost:3001/api`
+Base URL: `http://localhost:3000/api`
 
 - `GET /health`
 - `GET /questions`

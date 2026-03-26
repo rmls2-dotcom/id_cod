@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import {
+  API_ORIGIN,
   createExam,
   createQuestion,
   deleteExam,
@@ -727,7 +728,7 @@ function App() {
                         Batch: {generationResultByExamId[exam.id].batchId} | Files: {generationResultByExamId[exam.id].files.pdfs.length} PDFs
                       </p>
                       <p className="exam-meta">
-                        <a href={`http://localhost:3001${generationResultByExamId[exam.id].files.answerKeyCsv}`} target="_blank" rel="noreferrer">
+                        <a href={`${API_ORIGIN}${generationResultByExamId[exam.id].files.answerKeyCsv}`} target="_blank" rel="noreferrer">
                           Open answer-key CSV
                         </a>
                       </p>
@@ -736,7 +737,7 @@ function App() {
                         <ul className="generated-links">
                           {generationResultByExamId[exam.id].files.pdfs.map((pdfPath) => (
                             <li key={pdfPath}>
-                              <a href={`http://localhost:3001${pdfPath}`} target="_blank" rel="noreferrer">
+                              <a href={`${API_ORIGIN}${pdfPath}`} target="_blank" rel="noreferrer">
                                 {pdfPath.split("/").pop()}
                               </a>
                             </li>
@@ -841,7 +842,7 @@ function App() {
 
                     {gradeReportByExamId[exam.id] ? (
                       <p className="exam-meta">
-                        <a href={`http://localhost:3001${gradeReportByExamId[exam.id].reportUrl}`} target="_blank" rel="noreferrer">
+                        <a href={`${API_ORIGIN}${gradeReportByExamId[exam.id].reportUrl}`} target="_blank" rel="noreferrer">
                           Open class report CSV
                         </a>
                       </p>
